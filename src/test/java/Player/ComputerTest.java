@@ -38,7 +38,7 @@ public class ComputerTest {
         assertEquals(Arrays.asList(1,1,2,2,3,4,5), lengths);
     }
 
-    // pokriva if obe grane prvo f pa t da bi videli da li i while radi
+    // covers both branches of the if, first false then true, to see whether the while loop also works
     static class FakeGridE extends Gridline {
         int calls = 0;
         boolean marked = false;
@@ -60,11 +60,11 @@ public class ComputerTest {
     @Test
     void TP03_takeAim_executes_and_marks_grid() throws Exception {
         FakeGridE fake = new FakeGridE();
-        Field f = Player.class.getDeclaredField("gridE"); //ubacujem fake u polje player za gridE
+        Field f = Player.class.getDeclaredField("gridE"); //injecting fake into the player's gridE field
         f.setAccessible(true);
         f.set(c, fake);
 
-        // meta uvek vraca false ili true, nije bitno bitno je da takeAim prodje
+        // target always returns false or true, doesn't matter, what matters is that takeAim executes
         Player target = new Person("P") {
             @Override
             public boolean shot(int x, int y) { return true; }
@@ -72,18 +72,18 @@ public class ComputerTest {
 
         boolean result = c.takeAim(target, 0, 0);
 
-        assertTrue(result);          // jer shot gore vraca true
-        assertTrue(fake.calls >= 2); // while se vrteo bar 2 puta if false pa true
-        assertTrue(fake.marked);     // mark je pozvan
+        assertTrue(result);          // because shot above returns true
+        assertTrue(fake.calls >= 2); // while loop ran at least twice, if false then true
+        assertTrue(fake.marked);     // mark was called
     }
 
     @Test
     void TP03_MOCK_takeAim_executes_and_marks_grid() throws Exception {
 
         Gridline gridE = mock(Gridline.class);
-        //da bi prosla wile 2 puta
+        //so the while loop runs twice
         when(gridE.checkShot(anyInt(), anyInt())).thenReturn(false, true);
-        Field f = Player.class.getDeclaredField("gridE"); //ubaci preko refleksije
+        Field f = Player.class.getDeclaredField("gridE"); //inject via reflection
         f.setAccessible(true);
         f.set(c, gridE);
 
@@ -93,22 +93,22 @@ public class ComputerTest {
         boolean result = c.takeAim(target, 0, 0);
         assertTrue(result);
 
-        // while se vrteo bar 2 puta
+        // while loop ran at least twice
         verify(gridE, atLeast(2)).checkShot(anyInt(), anyInt());
 
-        // mark se poziva jednom tacno kad pogodimo legelan shot
+        // mark is called exactly once when we hit a legal shot
         verify(gridE, times(1)).mark(anyInt(), anyInt(), eq(true));
         verify(target, times(1)).shot(anyInt(), anyInt());
     }
-    //dodali zbog pita
+    //added for mutation testing (pitest)
     @Test
     void TP04_createGridMine_actually_places_ships_on_grid() throws Exception {
         c.createGridMine();
         Gridline mine = c.gridlineMine();
         boolean foundAnyShip = false;
 
-        // prolazimo kroz grid da vidimo da li je neko polje promenjeno
-        // ako je gridM.place(temp) uklonjeno, grid ce biti potpuno prazan  .
+        // iterate through the grid to see whether any field has changed
+        // if gridM.place(temp) is removed, the grid will be completely empty.
         for (int x = 0; x < 10; x++) {
             for (int y = 0; y < 10; y++) {
                 if (!c.checkBlockM(x, y).equals(".")) {

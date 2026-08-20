@@ -37,9 +37,9 @@ public class PersonTest {
 
     @Test
     void TP03_takeAim_marks_enemy_grid_and_returns_same_as_shot() throws Exception {
-        //person ima enemy grid (gridE) kreiran u Player konstruktoru,
+        //person has an enemy grid (gridE) created in the Player constructor,
         Computer comp = new Computer("C");
-        comp.createGridMine(); // meta ima brodove
+        comp.createGridMine(); // target has ships
 
         int x = 0, y = 0;
         String before = p.checkBlockE(x, y);
@@ -48,34 +48,34 @@ public class PersonTest {
         String after = p.checkBlockE(x, y);
         assertNotEquals(before, after);
 
-        // Ne mozeme se ponovo pozvati jer bi promenilo stanje, pa samo proverimo da je boolean validan
+        // We can't call it again because it would change the state, so we just check that the boolean is valid
         assertTrue(result == true || result == false);
     }
 
     @Test
     void TP_MOCK_takeAim_returnsTrue_when_enemyShotHits() throws Exception {
 
-        // pravi Person , objekat koji testiramo
+        // creates the Person object we are testing
         Person p = new Person("P1");
         p.createGridMine();
         Computer enemy = mock(Computer.class);
-        when(enemy.shot(0, 0)).thenReturn(true); //kas pozovem vrati true
+        when(enemy.shot(0, 0)).thenReturn(true); //when called, returns true
 
         boolean result = p.takeAim(enemy, 0, 0);
 
-        assertTrue(result);                 // vraća true
-        verify(enemy).shot(0, 0);           // proveri da je pozvano
+        assertTrue(result);                 // returns true
+        verify(enemy).shot(0, 0);           // verify it was called
     }
-    //dodali zbog pita
+    //added for mutation testing (pitest)
     @Test
     void TP05_takeAim_returns_false_on_miss() throws Exception {
         // mutant replaced boolean return with true
         Computer enemy = mock(Computer.class);
-        // prisilni promasaj
+        // forced miss
         when(enemy.shot(5, 5)).thenReturn(false);
 
         boolean result = p.takeAim(enemy, 5, 5);
-        // ako mutant uvek vraca true, ovaj assert pada
+        // if the mutant always returns true, this assertion fails
         assertFalse(result);
     }
 
@@ -99,14 +99,14 @@ public class PersonTest {
     @Test
     void TP07_createGridMine_boundary_n5() throws Exception {
         //  mutant n > 5 boundary
-        // ovaj test zavisi od ships.txt, ako je u ships.txt jedan brod duzine 5
-        // mutant koji promeni uslov u n >= 5 ce baciti BadFileException(2)
+        // this test depends on ships.txt; if ships.txt has one ship of length 5
+        // a mutant that changes the condition to n >= 5 will throw BadFileException(2)
         assertDoesNotThrow(() -> p.createGridMine());
     }
 
     @Test
     void TP08_createGridMine_invalid_coordinates_throws_exception() throws Exception {
-        // pokriva grane i zatvaranje fajlova u catch blokovima
+        // covers branches and file closing in catch blocks
         assertTrue(p.getShips().size() <= 7);
     }
 

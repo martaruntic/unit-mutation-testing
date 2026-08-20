@@ -40,7 +40,7 @@ public class Gridline implements Structure
         {
             for(int i = 0; i < n; i++)
             {
-                if(grid[x+i][y].placed == true) //zauzeto polje pa ne moze da se postai brod tu
+                if(grid[x+i][y].placed == true) //field is occupied so a ship can't be placed here
                     return false;
             }
             return true;

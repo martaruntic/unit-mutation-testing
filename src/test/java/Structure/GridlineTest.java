@@ -20,7 +20,7 @@ public class GridlineTest {
     }
 
 
-    // n = 1 ali polje zauzeto,false
+    // n = 1 but the field is occupied, false
     @Test
     void TP01_checkShip_n1_occupied_false() {
         Ship s = new Ship(1, 2, 2, "r");
@@ -43,7 +43,7 @@ public class GridlineTest {
         assertFalse(grid.checkShip(3, 1, 1, "d"));
     }
 
-    // promasaj menja prikaz
+    // a miss changes the display
     @Test
     void TP04_checkBlock_changes_afterMiss() {
         String before = grid.checkBlock(5, 5);
@@ -114,10 +114,10 @@ public class GridlineTest {
 
         grid.place(s);
 
-        assertTrue(true); // samo za coverage
+        assertTrue(true); // just for coverage
     }
 
-    // checkShip preko CSV
+    // checkShip via CSV
     @ParameterizedTest
     @CsvFileSource(resources = "/checkShip.csv", numLinesToSkip = 1)
     void TP11_checkShip_parametrized(int n, int x, int y, String dir, boolean expected) {
@@ -126,7 +126,7 @@ public class GridlineTest {
 
         assertEquals(expected, result);
     }
-    // checkShot preko CSV
+    // checkShot via CSV
     @ParameterizedTest
     @CsvFileSource(resources = "/checkShot.csv", numLinesToSkip = 1)
     void TP12_checkShot_parametrized(int x, int y, boolean shootBefore, boolean expected) {
@@ -139,7 +139,7 @@ public class GridlineTest {
 
         assertEquals(expected, result);
     }
-    //zbog pita
+    //for mutation testing (pitest)
     @Test
     void TP13_checkShip_boundary_exactly_10() {
         assertFalse(grid.checkShip(3, 7, 0, "r"));

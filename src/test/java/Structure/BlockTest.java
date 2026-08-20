@@ -23,7 +23,7 @@ public class BlockTest {
     void TP02_create_resets_state() {
         Block b = new Block(0, 0);
 
-        // promeni stanje
+        // change state
         b.show = "X";
         b.placed = true;
         b.shot = true;
@@ -55,7 +55,7 @@ public class BlockTest {
 
         assertTrue(b.shot);
         assertEquals("X", b.show);
-        assertFalse(b.placed); // i dalje nije placed
+        assertFalse(b.placed); // still not placed
     }
 
     @Test
@@ -76,7 +76,7 @@ public class BlockTest {
         b.place(s);       // placed = true, show = O
         b.shot(true);
 
-        assertTrue(s.destroyed); // dokaz da je ship.shot() pozvan
+        assertTrue(s.destroyed); // proof that ship.shot() was called
         assertEquals("X", b.show);
         assertTrue(b.shot);
     }

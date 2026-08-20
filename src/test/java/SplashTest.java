@@ -22,8 +22,8 @@ public class SplashTest {
 
     @AfterEach
     void cleanup() throws Exception {
-        // zatvori window ako je ostao vidljiv
-        // (ne znamo koji test je prošao/pa koristimo reflection safe)
+        // close the window if it remained visible
+        // (we don't know which test ran, so we use a reflection-safe approach)
     }
 
     @Test
@@ -33,7 +33,7 @@ public class SplashTest {
 
         Splash splash = new Splash(1, ship, owner);
 
-        // ready == true -> treba da postavi ready=false, window visible, timerImg start
+        // ready == true -> should set ready=false, window visible, timerImg start
         runOnEDT(() -> splash.runImage(1));
 
         JWindow window = (JWindow) getField(splash, "window");
@@ -53,15 +53,15 @@ public class SplashTest {
 
         Splash splash = new Splash(2, ship, owner);
 
-        // forsiraj ready=false pre runImage
+        // force ready=false before runImage
         Splash.ready = false;
 
         runOnEDT(() -> splash.runImage(2));
 
         Timer timerWait = (Timer) getField(splash, "timerWait");
-        assertTrue(timerWait.isRunning(), "Kad je ready=false, runImage treba da startuje timerWait");
+        assertTrue(timerWait.isRunning(), "When ready=false, runImage should start timerWait");
 
-        // počisti
+        // cleanup
         JWindow window = (JWindow) getField(splash, "window");
         runOnEDT(window::dispose);
     }
@@ -76,18 +76,18 @@ public class SplashTest {
         Timer timerWait = (Timer) getField(splash, "timerWait");
         Timer timerImg = (Timer) getField(splash, "timerImg");
 
-        // priprema uslova: timerWait.isRunning()==true i ready==true
+        // prepare conditions: timerWait.isRunning()==true and ready==true
         Splash.ready = true;
         runOnEDT(timerWait::start);
         assertTrue(timerWait.isRunning());
 
-        // okini actionPerformed
+        // trigger actionPerformed
         runOnEDT(() -> splash.actionPerformed(new ActionEvent(this, 0, "tick")));
 
-        assertFalse(Splash.ready, "U ovoj grani ready postaje false");
-        assertTrue(window.isVisible(), "U ovoj grani window postaje visible");
-        assertFalse(timerWait.isRunning(), "timerWait treba da se stopuje");
-        assertTrue(timerImg.isRunning(), "timerImg treba da se startuje");
+        assertFalse(Splash.ready, "In this branch ready becomes false");
+        assertTrue(window.isVisible(), "In this branch window becomes visible");
+        assertFalse(timerWait.isRunning(), "timerWait should be stopped");
+        assertTrue(timerImg.isRunning(), "timerImg should be started");
 
         runOnEDT(window::dispose);
     }
@@ -102,7 +102,7 @@ public class SplashTest {
         Timer timerImg = (Timer) getField(splash, "timerImg");
         Timer timerWait = (Timer) getField(splash, "timerWait");
 
-        // priprema: timerImg.isRunning()==true
+        // prepare: timerImg.isRunning()==true
         Splash.ready = false;
         runOnEDT(() -> {
             window.setVisible(true);
@@ -110,11 +110,11 @@ public class SplashTest {
         });
         assertTrue(timerImg.isRunning());
 
-        // okini actionPerformed -> else if(timerImg.isRunning()) grana
+        // trigger actionPerformed -> else if(timerImg.isRunning()) branch
         runOnEDT(() -> splash.actionPerformed(new ActionEvent(this, 0, "tick2")));
 
-        assertTrue(Splash.ready, "Posle ove grane ready treba da bude true");
-        assertFalse(window.isVisible(), "Prozor treba da se sakrije");
+        assertTrue(Splash.ready, "After this branch ready should be true");
+        assertFalse(window.isVisible(), "The window should be hidden");
         assertFalse(timerImg.isRunning(), "timerImg stop");
         assertFalse(timerWait.isRunning(), "timerWait stop");
 
@@ -128,29 +128,29 @@ public class SplashTest {
         Player.Person p = new Player.Person("X");
         Ship.ShipCount ship = new Ship.ShipCount(p);
 
-        // napravi Splash (frame owner može JFrame)
+        // create Splash (frame owner can be a JFrame)
         JFrame owner = new JFrame();
         Splash splash = new Splash(1, ship, owner);
 
         // start thread
         splash.start();
 
-        // Forsiraj da uđe u if(ship.destroyed != 0)
+        // Force it to enter if(ship.destroyed != 0)
         ship.destroyed = 1;
 
-        // Pusti malo vremena da thread uđe u petlju i obradi
+        // Give the thread a little time to enter the loop and process
         Thread.sleep(50);
 
-        // Sada prekini while petlju
+        // Now break the while loop
         ship.allDestroyed = true;
 
-        // Sačekaj da thread završi
+        // Wait for the thread to finish
         splash.join(500);
 
         assertFalse(splash.isAlive(), "Splash thread should exit when allDestroyed becomes true");
 
-        // počisti prozor
-        // (ako je bio vidljiv)
+        // clean up the window
+        // (if it was visible)
         JWindow window = (JWindow) getField(splash, "window");
         runOnEDT(window::dispose);
     }
@@ -165,8 +165,8 @@ public class SplashTest {
         Timer timerImg = (Timer) getField(splash, "timerImg");
         JWindow window = (JWindow) getField(splash, "window");
 
-        // Forsiraj da NIŠTA ne radi:
-        // oba timera stop + ready može biti bilo šta, ali neka bude false da prvi if sigurno padne
+        // Force NOTHING to happen:
+        // both timers stopped + ready can be anything, but let it be false so the first if surely fails
         Splash.ready = false;
 
         runOnEDT(() -> {
@@ -178,13 +178,13 @@ public class SplashTest {
         assertFalse(timerWait.isRunning());
         assertFalse(timerImg.isRunning());
 
-        // pozovi actionPerformed -> ne ulazi ni u if ni u else-if
+        // call actionPerformed -> does not enter either the if or the else-if
         boolean readyBefore = Splash.ready;
         boolean visibleBefore = window.isVisible();
 
         runOnEDT(() -> splash.actionPerformed(new java.awt.event.ActionEvent(this, 3, "noop")));
 
-        // ništa se ne menja
+        // nothing changes
         assertEquals(readyBefore, Splash.ready);
         assertEquals(visibleBefore, window.isVisible());
         assertFalse(timerWait.isRunning());
@@ -203,7 +203,7 @@ public class SplashTest {
         Timer timerImg = (Timer) getField(splash, "timerImg");
         JWindow window = (JWindow) getField(splash, "window");
 
-        // KLJUČNO: ready = false
+        // CRUCIAL: ready = false
         Splash.ready = false;
 
         runOnEDT(() -> {
@@ -221,7 +221,7 @@ public class SplashTest {
                 splash.actionPerformed(new java.awt.event.ActionEvent(this, 5, "x"))
         );
 
-        // ništa se ne sme promeniti
+        // nothing should change
         assertEquals(before, Splash.ready);
         assertFalse(window.isVisible());
 
@@ -235,13 +235,13 @@ public class SplashTest {
 
         Splash splash = new Splash(1, ship, new JFrame());
 
-        // destroyed je 0 po defaultu -> treba da pokrije if(FALSE)
+        // destroyed is 0 by default -> should cover if(FALSE)
         splash.start();
 
-        // pusti malo da uđe u while i proveri if
+        // give it a little time to enter the while loop and check the if
         Thread.sleep(30);
 
-        // prekini while
+        // break the while loop
         ship.allDestroyed = true;
 
         splash.join(500);

@@ -73,7 +73,7 @@ public class MainFrameTest {
     }
 
     // ---------------------------------------------------------
-    // 3) Forsiraj actionPerformed grane: hit/miss + destroyedUpdate != -1/-1
+    // 3) Force actionPerformed branches: hit/miss + destroyedUpdate != -1/-1
     // + changeButtonE boja za X i plus
     // + changeButtonM boje za X i +
     // ---------------------------------------------------------
@@ -90,7 +90,7 @@ public class MainFrameTest {
         // play1.takeAim = true (hit) + checkBlockE="X" -> green
         // play2.takeAim = false (miss)
         // count2.destroyedUpdate = 3 (append "ship destroyed")
-        // count1.destroyedUpdate = -1 (ne appenduje)
+        // count1.destroyedUpdate = -1 (does not append)
         Player.Person forcedP1_A = new Player.Person("P1") {
             @Override public boolean takeAim(Player.Player enemy, int x, int y) { return true; }
             @Override public String checkBlockE(int x, int y) { return "X"; }
@@ -99,7 +99,7 @@ public class MainFrameTest {
         Player.Computer forcedP2_A = new Player.Computer("P2") {
             @Override public boolean takeAim(Player.Player enemy, int x, int y) { return false; }
 
-            // changeButtonM čita play2.checkBlockE(j,i)
+            // changeButtonM reads play2.checkBlockE(j,i)
             @Override public String checkBlockE(int x, int y) {
                 if (x == 0 && y == 0) return "X"; // pink
                 if (x == 1 && y == 0) return "+"; // purple
@@ -128,7 +128,7 @@ public class MainFrameTest {
         // CASE B:
         // play1.takeAim = false (miss) + checkBlockE="+" -> blue
         // play2.takeAim = true (hit)
-        // count2.destroyedUpdate = -1 (ne append)
+        // count2.destroyedUpdate = -1 (does not append)
         // count1.destroyedUpdate = 4 (append)
         runOnEDT(() -> text.setText(""));
 
@@ -157,7 +157,7 @@ public class MainFrameTest {
     }
 
     // ---------------------------------------------------------
-    // 4) checkEnd: draw / play2 wins / play1 wins (3 grane)
+    // 4) checkEnd: draw / play2 wins / play1 wins (3 branches)
     // ---------------------------------------------------------
     @Test
     void GUI04_checkEnd_draw_branch() throws Exception {
@@ -166,7 +166,7 @@ public class MainFrameTest {
 
         JTextArea text = (JTextArea) getField(mf, "text");
 
-        // oba true -> draw
+        // both true -> draw
         setField(mf, "count1", new FakeShipCountForTable(new Player.Person("X"), -1, true));
         setField(mf, "count2", new FakeShipCountForTable(new Player.Person("Y"), -1, true));
 
@@ -229,7 +229,7 @@ public class MainFrameTest {
     }
 
     // ---------------------------------------------------------
-    // 5) endGame==true -> actionPerformed return odmah
+    // 5) endGame==true -> actionPerformed returns immediately
     // ---------------------------------------------------------
     @Test
     void GUI07_endGameTrue_actionPerformed_returnsImmediately_noChanges() throws Exception {
@@ -251,7 +251,7 @@ public class MainFrameTest {
     }
 
     // =========================================================
-    // FakeShipCountForTable: KLJUČNO da getDestroyed() ima 7 elemenata
+    // FakeShipCountForTable: CRUCIAL that getDestroyed() has 7 elements
     // =========================================================
     static class FakeShipCountForTable extends Ship.ShipCount {
         private final int destroyedUpdateRet;
@@ -268,7 +268,7 @@ public class MainFrameTest {
         @Override public boolean allDestroyed() { return allDestroyedRet; }
 
         @Override public List<Boolean> getDestroyed() {
-            // 7 redova u tabeli -> 7 boolean vrednosti
+            // 7 rows in the table -> 7 boolean values
             return Arrays.asList(false, false, false, false, false, false, false);
         }
     }
@@ -301,19 +301,19 @@ public class MainFrameTest {
 
         JTextArea text = (JTextArea) getField(mf, "text");
 
-        // MOCK: count1 i count2
+        // MOCK: count1 and count2
         Ship.ShipCount count1 = mock(Ship.ShipCount.class);
         Ship.ShipCount count2 = mock(Ship.ShipCount.class);
 
-        // oba allDestroyed() true -> draw grana
+        // both allDestroyed() true -> draw branch
         when(count1.allDestroyed()).thenReturn(true);
         when(count2.allDestroyed()).thenReturn(true);
 
-        // ubaci mock-ove u MainFrame
+        // inject mocks into MainFrame
         setField(mf, "count1", count1);
         setField(mf, "count2", count2);
 
-        // pozovi private metodu checkEnd()
+        // call the private checkEnd() method
         runOnEDT(() -> {
             try {
                 invokePrivate(mf, "checkEnd");
@@ -326,7 +326,7 @@ public class MainFrameTest {
         assertTrue((boolean) getField(mf, "endGame"));
         assertTrue(text.getText().contains("draw"));
 
-        // VERIFY (da profesor vidi Mockito poentu)
+        // VERIFY (so the professor can see the Mockito point)
         verify(count1, atLeastOnce()).allDestroyed();
         verify(count2, atLeastOnce()).allDestroyed();
     }

@@ -12,7 +12,7 @@ public class ShipTest {
 
     @BeforeEach
     void setUp() {
-        s = new Ship(2, 2, 3, "d"); // novi ship pre svakog testa
+        s = new Ship(2, 2, 3, "d"); // new ship before each test
     }
 
     @Test
@@ -27,7 +27,7 @@ public class ShipTest {
     @Test
     void TP02_shot_lives_not_zero_false() {
         s.shot();
-        assertFalse(s.destroyed); // jos nije potopljen
+        assertFalse(s.destroyed); // not sunk yet
     }
 
     @Test
@@ -41,12 +41,12 @@ public class ShipTest {
     void TP04_place_add_block() {
         Block b = new Block(0, 0);
         s.place(b);
-        assertTrue(true); // samo da pokrije statement, nema getter za listu
+        assertTrue(true); // just to cover the statement, there's no getter for the list
     }
-    //zbog pita
+    //for mutation testing (pitest)
     @Test
     void TP05_exact_lives_count() {
-        // Brod velicine 2
+        // Ship of length 2
         Ship s2 = new Ship(2, 0, 0, "r");
         s2.shot(); // lives 1
         assertFalse(s2.destroyed);

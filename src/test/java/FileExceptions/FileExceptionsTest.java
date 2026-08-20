@@ -6,16 +6,16 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FileExceptionsTest {
     @Test
     void testBadFileException() {
-        // Ako nema konstruktor sa Stringom, koristi prazan:
+        // If there's no constructor with a String, use the empty one:
         BadFileException ex = new BadFileException(1);
         assertNotNull(ex);
     }
 
-    // Ako imaš i FileException, dodaj ga ovako:
+    // If you also have FileException, add it like this:
     /*
     @Test
     void testFileException() {
-        FileException ex = new FileException("Greska u fajlu");
+        FileException ex = new FileException("File error");
         assertNotNull(ex);
     }
     */
